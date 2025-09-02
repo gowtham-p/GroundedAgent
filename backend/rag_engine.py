@@ -23,3 +23,4 @@ qa_chain = RetrievalQA.from_chain_type(
 
 def answer_question(question: str) -> str:
     return qa_chain.run(question)
+_
