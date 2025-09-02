@@ -1,17 +1,19 @@
 from langchain.chains import RetrievalQA
 from langchain.vectorstores import FAISS
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.llms import OpenAI
+from langchain_openai import OpenAIEmbeddings
+from langchain_openai import OpenAI
 from langchain.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores.faiss import FAISS
+from langchain_community.vectorstores import FAISS
+from dotenv import load_dotenv
+load_dotenv() 
 
 def load_vectorstore():
     loader = DirectoryLoader("data", glob="**/*.pdf")
     docs = loader.load()
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     chunks = text_splitter.split_documents(docs)
-    embeddings = OpenAIEmbeddings()
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
     vectorstore = FAISS.from_documents(chunks, embeddings)
     return vectorstore
 
@@ -23,4 +25,3 @@ qa_chain = RetrievalQA.from_chain_type(
 
 def answer_question(question: str) -> str:
     return qa_chain.run(question)
-_

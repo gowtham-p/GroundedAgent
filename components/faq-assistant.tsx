@@ -42,32 +42,20 @@ const exampleQuestions = [
 
 // Simulated AI response generator - replace with real AI integration
 const generateResponse = async (question: string): Promise<string> => {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 1200))
+  const base = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
+  const res = await fetch(`${base}/api/ask`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question }),
+  });
 
-  const lowerQuestion = question.toLowerCase()
-
-  if (
-    lowerQuestion.includes("two-factor") ||
-    lowerQuestion.includes("2fa") ||
-    lowerQuestion.includes("authentication")
-  ) {
-    return "Two-factor authentication (2FA) adds an essential security layer to your accounts. Here's how to set it up:\n\n1. **Choose your method**: Use an authenticator app (like Google Authenticator or Authy), SMS, or hardware tokens\n2. **Enable in account settings**: Look for 'Security' or '2FA' in your account settings\n3. **Scan the QR code** with your authenticator app\n4. **Save backup codes** in a secure location\n5. **Test the setup** before closing the setup window\n\nI recommend authenticator apps over SMS for better security. Would you like specific guidance for any particular service?"
+  if (!res.ok) {
+    throw new Error(`API error: ${res.status}`);
   }
 
-  if (lowerQuestion.includes("password") || lowerQuestion.includes("secure")) {
-    return "A secure password is your first line of defense. Here are the key principles:\n\n**Strong Password Characteristics:**\n• At least 12-16 characters long\n• Mix of uppercase, lowercase, numbers, and symbols\n• Unique for each account\n• Not based on personal information\n\n**Best Practices:**\n• Use a password manager to generate and store passwords\n• Enable two-factor authentication where possible\n• Regularly update passwords for critical accounts\n• Consider passphrases for memorable yet secure options\n\n**Red Flags to Avoid:**\n• Common words or patterns\n• Reusing passwords across accounts\n• Storing passwords in browsers on shared computers\n\nWould you like recommendations for password managers?"
-  }
-
-  if (lowerQuestion.includes("backup") || lowerQuestion.includes("data")) {
-    return "Protecting your sensitive data requires a comprehensive backup strategy:\n\n**The 3-2-1 Rule:**\n• 3 copies of important data\n• 2 different storage types (local + cloud)\n• 1 offsite backup\n\n**Security Best Practices:**\n• Encrypt all backups before storage\n• Use reputable cloud services with strong security\n• Test restore procedures regularly\n• Keep backups isolated from your main network\n• Consider versioned backups for ransomware protection\n\n**Recommended Tools:**\n• Cloud: Google Drive, Dropbox, OneDrive (with encryption)\n• Local: External drives with hardware encryption\n• Enterprise: Automated backup solutions with air-gapped storage\n\nWhat type of data are you looking to protect?"
-  }
-
-  if (lowerQuestion.includes("network") || lowerQuestion.includes("wifi") || lowerQuestion.includes("router")) {
-    return "Network security is crucial for protecting all your connected devices:\n\n**Router Security:**\n• Change default admin credentials immediately\n• Use WPA3 encryption (or WPA2 if WPA3 unavailable)\n• Update firmware regularly\n• Disable WPS and unnecessary services\n• Use a strong, unique WiFi password\n\n**Network Monitoring:**\n• Regularly check connected devices\n• Set up guest networks for visitors\n• Monitor for unusual traffic patterns\n• Consider network segmentation for IoT devices\n\n**Advanced Protection:**\n• Enable firewall on router and devices\n• Use VPN for remote access\n• Implement network access control\n• Consider enterprise-grade solutions for businesses\n\nWould you like help with any specific network security configuration?"
-  }
-
-  return "Thank you for your security question. I'm here to help you strengthen your security posture with practical, actionable advice.\n\nFor the most accurate guidance on your specific situation, could you provide a bit more detail about:\n• What type of system or data you're trying to protect\n• Your current security measures\n• Any specific concerns or threats you're facing\n\nThis will help me provide more targeted recommendations tailored to your needs."
+  const data = await res.json();
+  return data.answer ?? "No answer returned.";
+};
 }
 
 export function FAQAssistant() {
