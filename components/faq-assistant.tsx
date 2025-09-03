@@ -56,7 +56,7 @@ const generateResponse = async (question: string): Promise<string> => {
   const data = await res.json();
   return data.answer ?? "No answer returned.";
 };
-}
+
 
 export function FAQAssistant() {
   const [messages, setMessages] = useState<Message[]>([])

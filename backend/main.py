@@ -1,23 +1,31 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from backend.rag_engine import answer_question
 
 app = FastAPI()
 
-# Allow frontend to talk to backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace * with your frontend URL in production
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.post("/api/ask")
-async def ask_question(request: Request):
-    body = await request.json()
-    question = body.get("question")
-    if not question:
-        return {"answer": "Please provide a 'question'."}
-    answer = answer_question(question)
-    return {"answer": answer}
+class AskRequest(BaseModel):
+    question: str
+
+class AskResponse(BaseModel):
+    answer: str
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+@app.post("/api/ask", response_model=AskResponse)
+def ask_question(req: AskRequest):
+    q = req.question.strip()
+    if not q:
+        raise HTTPException(status_code=400, detail="question must be non-empty")
+    return {"answer": answer_question(q)}
