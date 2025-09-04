@@ -17,6 +17,7 @@ DATA_DIR = ROOT_DIR / "data"
 assert DATA_DIR.exists(), f"DATA_DIR not found: {DATA_DIR}"
 
 
+
 def load_vectorstore():
     loader = DirectoryLoader(
         str(DATA_DIR),
@@ -32,10 +33,11 @@ def load_vectorstore():
     return FAISS.from_documents(splits, embeddings)
 
 vectorstore = load_vectorstore()
+retriever=vectorstore.as_retriever(search_kwargs={"k": 4})
 
 qa_chain = RetrievalQA.from_chain_type(
     llm=OpenAI(temperature=0),
-    retriever=vectorstore.as_retriever(search_kwargs={"k": 4}),
+    retriever=retriever,
     return_source_documents=False,
 )
 

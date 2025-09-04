@@ -4,6 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:web": "next dev",
+    "dev:api": "uvicorn backend.main:app --reload",
+    "dev:all": "concurrently -n web,api -c blue,green \"npm run dev:web\" \"npm run dev:api\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

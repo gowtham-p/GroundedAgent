@@ -57,6 +57,10 @@ const generateResponse = async (question: string): Promise<string> => {
   return data.answer ?? "No answer returned.";
 };
 
+if (!process.env.NEXT_PUBLIC_API_BASE) {
+  console.warn("NEXT_PUBLIC_API_BASE is not set; using default http://127.0.0.1:8000");
+}
+
 
 export function FAQAssistant() {
   const [messages, setMessages] = useState<Message[]>([])
