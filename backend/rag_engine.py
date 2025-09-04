@@ -40,5 +40,11 @@ qa_chain = RetrievalQA.from_chain_type(
 )
 
 def answer_question(question: str) -> str:
+    # pre-check whether anything is retrievable
+    docs = retriever.get_relevant_documents(question)
+    if not docs:
+        return "I couldn’t find an answer in your PDFs."
+
     out = qa_chain.invoke({"query": question})
     return out["result"] if isinstance(out, dict) and "result" in out else str(out)
+
