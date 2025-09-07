@@ -64,5 +64,5 @@ Set via **.env** (or a config `.yaml` if you prefer):
 
 ---
 
-💡 **Tip:** The default code will build or load the **FAISS index** on startup.  
+**Tip:** The default code will build or load the **FAISS index** on startup.  
 For large corpora, use `scripts/build_index.py` to prebuild.
