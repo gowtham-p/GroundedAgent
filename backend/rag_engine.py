@@ -6,11 +6,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # LangChain / OpenAI
-from langchain_openai import OpenAIEmbeddings, OpenAI
+from langchain_openai import OpenAIEmbeddings, OpenAI, ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader
 from langchain_community.vectorstores import FAISS
+from langchain.prompts import ChatPromptTemplate
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT_DIR / "data"
@@ -33,12 +34,25 @@ def load_vectorstore():
     return FAISS.from_documents(splits, embeddings)
 
 vectorstore = load_vectorstore()
-retriever=vectorstore.as_retriever(search_kwargs={"k": 4})
+retriever=vectorstore.as_retriever(
+    search_type="mmr", 
+    search_kwargs={"k": 6, "fetch_k": 20, "lambda_mult": 0.5}
+    )
+
+custom_prompt = ChatPromptTemplate.from_template(
+    "You are an expert management consultant/mentor helping one prepare for interview. \
+    Answer questions clearly and concisely. Use only information from the provided documents."
+)
 
 qa_chain = RetrievalQA.from_chain_type(
-    llm=OpenAI(temperature=0),
+    llm=ChatOpenAI(model="gpt-4o-mini", temperature=0.9, system_prompt=custom_prompt),
     retriever=retriever,
-    return_source_documents=False,
+        chain_type="stuff",
+    chain_type_kwargs={
+        "prompt": prompt,
+        "document_variable_name": "context",  # must match {context} above
+    },
+    return_source_documents=True,  # turn on if you want citations
 )
 
 def answer_question(question: str) -> str:
