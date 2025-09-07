@@ -39,13 +39,15 @@ retriever=vectorstore.as_retriever(
     search_kwargs={"k": 6, "fetch_k": 20, "lambda_mult": 0.5}
     )
 
-custom_prompt = ChatPromptTemplate.from_template(
+prompt = ChatPromptTemplate.from_messages([
+    ("system",
     "You are an expert management consultant/mentor helping one prepare for interview. \
-    Answer questions clearly and concisely. Use only information from the provided documents."
-)
+    Answer questions clearly and concisely. Use only information from the provided documents."),
+    ("human", "Question: {question}\n\nContext:\n{context}")
+])
 
 qa_chain = RetrievalQA.from_chain_type(
-    llm=ChatOpenAI(model="gpt-4o-mini", temperature=0.9, system_prompt=custom_prompt),
+    llm=ChatOpenAI(model="gpt-4o-mini", temperature=0.1),
     retriever=retriever,
         chain_type="stuff",
     chain_type_kwargs={
@@ -57,8 +59,7 @@ qa_chain = RetrievalQA.from_chain_type(
 
 def answer_question(question: str) -> str:
     # pre-check whether anything is retrievable
-    docs = retriever.get_relevant_documents(question)
-    if not docs:
+    if not retriever.get_relevant_documents(question):
         return "I couldn’t find an answer in your PDFs."
 
     out = qa_chain.invoke({"query": question})
