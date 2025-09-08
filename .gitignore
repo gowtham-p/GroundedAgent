@@ -34,9 +34,12 @@ pnpm-debug.log*
 # python
 venv/
 __pycache__/
+*.pyc
 
 # node
 node_modules/
+.next/
+out/
 
 # vercel (if you ever use it)
 .vercel
@@ -48,3 +51,9 @@ next-env.d.ts
 # data files
 data/*.pdf
 storage/*
+
+# RAG artifacts
+data/
+faiss_index/
+*.faiss
+*.pkl

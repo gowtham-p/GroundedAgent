@@ -16,28 +16,60 @@ from langchain.prompts import ChatPromptTemplate
 ROOT_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT_DIR / "data"
 assert DATA_DIR.exists(), f"DATA_DIR not found: {DATA_DIR}"
+INDEX_DIR = ROOT_DIR / "faiss_index"
 
 
-
-def load_vectorstore():
+def build_vectorstore(data_dir: Path, index_dir: Path) -> FAISS:
+    """Create FAISS from PDFs and persist it."""
     loader = DirectoryLoader(
-        str(DATA_DIR),
+        str(data_dir),
         glob="**/*.pdf",
-        loader_cls=PyPDFLoader,   # reliable PDF parsing
+        loader_cls=PyPDFLoader,
     )
     docs = loader.load()
+    if not docs:
+        raise RuntimeError(f"No PDFs found under {data_dir}")
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1200, chunk_overlap=150)
-    splits = text_splitter.split_documents(docs)
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1200, chunk_overlap=150)
+    splits = splitter.split_documents(docs)
 
     embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
-    return FAISS.from_documents(splits, embeddings)
+    vs = FAISS.from_documents(splits, embeddings)
+    vs.save_local(str(index_dir))
+    return vs
 
-vectorstore = load_vectorstore()
-retriever=vectorstore.as_retriever(
-    search_type="mmr", 
-    search_kwargs={"k": 6, "fetch_k": 20, "lambda_mult": 0.5}
+def load_vectorstore(index_dir: Path) -> FAISS:
+    """Load FAISS from disk."""
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
+    return FAISS.load_local(
+        str(index_dir),
+        embeddings,
+        allow_dangerous_deserialization=True
     )
+
+def build_or_load_vectorstore() -> FAISS:
+    """Load existing index if present; otherwise build and save."""
+    faiss_files_present = (
+        INDEX_DIR.exists()
+        and (INDEX_DIR / "index.faiss").exists()
+        and (INDEX_DIR / "index.pkl").exists()
+    )
+    if faiss_files_present:
+        try:
+            return load_vectorstore(INDEX_DIR)
+        except Exception as e:
+            # Corrupted/outdated index → rebuild
+            print(f"Failed to load FAISS index, rebuilding. Reason: {e}")
+    # Build fresh
+    INDEX_DIR.mkdir(parents=True, exist_ok=True)
+    return build_vectorstore(DATA_DIR, INDEX_DIR)
+
+# --- use it ---
+vectorstore = build_or_load_vectorstore()
+retriever = vectorstore.as_retriever(
+    search_type="mmr",
+    search_kwargs={"k": 6, "fetch_k": 20, "lambda_mult": 0.5}
+)
 
 prompt = ChatPromptTemplate.from_messages([
     ("system",
@@ -47,7 +79,7 @@ prompt = ChatPromptTemplate.from_messages([
 ])
 
 qa_chain = RetrievalQA.from_chain_type(
-    llm=ChatOpenAI(model="gpt-4o-mini", temperature=0.1),
+    llm=ChatOpenAI(model="gpt-4o-mini", temperature=0.5),
     retriever=retriever,
         chain_type="stuff",
     chain_type_kwargs={
