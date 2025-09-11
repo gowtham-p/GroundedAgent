@@ -43,11 +43,11 @@ const exampleQuestions = [
 // Simulated AI response generator - replace with real AI integration
 const generateResponse = async (question: string): Promise<string> => {
   const base = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
-  const res = await fetch(`${base}/api/ask`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question }),
-  });
+const res = await fetch(`${base}/api/ask`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ question }),
+});
 
   if (!res.ok) {
     throw new Error(`API error: ${res.status}`);
