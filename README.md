@@ -49,33 +49,33 @@ Flow:
 
 # Create & activate venv
 python -m venv .venv && source .venv/bin/activate
-# Windows: .venv\Scripts\activate
+Windows: .venv\Scripts\activate
 
-# Install deps
-pip install -r requirements.txt
-# If needed:
-pip install fastapi "uvicorn[standard]" faiss-cpu
+#Install deps
+#pip install -r requirements.txt
+#If needed:
+#pip install fastapi "uvicorn[standard]" faiss-cpu
 
-# Backend env (.env)
-# Add your keys, e.g.:
-# OPENAI_API_KEY=sk-...
-# MODEL=gpt-4o-mini
-# EMBEDDING_MODEL=text-embedding-3-large
+#Backend env (.env)
+#Add your keys, e.g.:
+#OPENAI_API_KEY=sk-...
+#MODEL=gpt-4o-mini
+#EMBEDDING_MODEL=text-embedding-3-large
 
-# Run FastAPI on port 8000
+#Run FastAPI on port 8000
 python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
-# Verify: http://127.0.0.1:8000/docs
+#Verify: http://127.0.0.1:8000/docs
 
 2) Frontend (Next.js)
 
-# Next server env (.env.local) — server-only var; do NOT prefix with NEXT_PUBLIC_
+#Next server env (.env.local) — server-only var; do NOT prefix with NEXT_PUBLIC_
 PYTHON_BASE_URL=http://127.0.0.1:8000
 
-# Install and run
+#Install and run
 npm install
 npm run dev
-# Visit http://localhost:3000
-# Health proxy test: http://localhost:3000/api/health  -> should return {"status":"ok"}
+#Visit http://localhost:3000
+#Health proxy test: http://localhost:3000/api/health  -> should return {"status":"ok"}
 
 
 API contract (backend)
