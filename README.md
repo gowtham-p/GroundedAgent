@@ -107,5 +107,16 @@ Set via **.env** (or a config `.yaml` if you prefer):
 
 ---
 
+### (Optional) Streaming
+- FastAPI: return SSE or chunked responses as tokens are generated
+- Next route: pass Response.body through with Content-Type: text/event-stream
+- UI: read stream (EventSource / ReadableStream) for ChatGPT-style typing
+
+Deploy notes
+- Deploy Next (e.g., Vercel).
+- Deploy FastAPI (Render/Fly/EC2).
+- Set PYTHON_BASE_URL in Vercel to your FastAPI URL.
+- The browser still calls only /api/* on your Next domain.
+
 **Tip:** The default code will build or load the **FAISS index** on startup.  
 For large corpora, use `scripts/build_index.py` to prebuild.
