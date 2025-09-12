@@ -29,7 +29,7 @@ Flow:
 
 
 ## Project Structure
-.
+
 ├─ app/                     # Next.js (App Router)
 │  └─ api/
 │     └─ ask/route.ts      # proxy -> FastAPI /api/ask
@@ -40,8 +40,6 @@ Flow:
 ├─ .env.local               # Next server env (PYTHON_BASE_URL only)
 ├─ .env                     # Python env (OpenAI keys, etc.)
 └─ requirements.txt         # Python deps
-
----
 
 ## Quickstart
 
