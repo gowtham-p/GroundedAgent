@@ -47,7 +47,7 @@ Flow:
 
 ### Backend (FastAPI)
 
-#### 1) Create & activate a virtualenv
+1) Create & activate a virtualenv
 ```bash
 python -m venv .venv
 source .venv/bin/activate    # macOS/Linux
