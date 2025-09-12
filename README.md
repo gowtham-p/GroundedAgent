@@ -47,11 +47,11 @@ Flow:
 
 1) Backend (FastAPI)
 
-# Create & activate venv
+### Create & activate venv
 python -m venv .venv && source .venv/bin/activate
 Windows: .venv\Scripts\activate
 
-#Install deps
+### Install deps
 #pip install -r requirements.txt
 #If needed:
 #pip install fastapi "uvicorn[standard]" faiss-cpu
