@@ -1,5 +1,5 @@
 # GroundedAgent
-> Production-minded RAG + Agents in Python: grounded answers with citations, evals, and guardrails.
+> Production-minded RAG + Agents with a Next.js (React) frontend and a FastAPI (Python) backend. Grounded answers with citations, evals, and guardrails.
 
 ![python](https://img.shields.io/badge/Python-3.11+-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
@@ -16,42 +16,81 @@ Most “chat with your docs” demos skip the hard parts. This repo shows how to
 - **Pluggable models** (`ChatOpenAI`) and prompt templates  
 - **Unit tests & eval hooks** (RAGAS/DeepEval ready)
 
----
-
-## Quickstart
-```bash
-# 1) Create & activate a virtualenv
-python -m venv .venv && source .venv/bin/activate
-# on Windows: .venv\Scripts\activate
-
-# 2) Install deps
-pip install -r requirements.txt
-
-# 3) Configure environment
-cp .env.example .env   # add your OpenAI API key, etc.
-
-# 4) Add a couple of PDFs to ./data (this dir is gitignored)
-
-# 5) Run a smoke test (auto-builds/loads the FAISS index)
-python -c "from grounded_agent.rag_engine import answer_question; print(answer_question('What is zero trust?'))"
-
----
-
-## Project Structure
-.
-├─ src/grounded_agent/        # package (rag_engine.py lives here)
-├─ data/                      # your PDFs (gitignored); include tiny samples in examples/
-├─ examples/                  # example PDFs / notebooks
-├─ tests/                     # pytest tests
-├─ docs/                      # README images, architecture diagram
-└─ scripts/                   # build_index.py, eval.py
-
 ## Architecture
 
+Browser ── POST /api/ask ─▶ Next.js route (app/api/ask/route.ts)
+                             └──▶ FastAPI (http://127.0.0.1:8000/api/ask)
+                                   └──▶ RAG (FAISS, LLM) → JSON (answer + citations)
+                                   
 Flow:
 - Ingestion → Split → Embed → FAISS
 - Retriever (MMR) → Prompt ({question}, {context}) → LLM
 - Return answer with citations (source snippets/pages)
+
+
+## Project Structure
+.
+├─ app/                     # Next.js (App Router)
+│  └─ api/
+│     └─ ask/route.ts      # proxy -> FastAPI /api/ask
+├─ components/              # React UI
+├─ backend/                 # FastAPI app (main.py, rag_engine.py, etc.)
+├─ data/                    # PDFs (gitignored)
+├─ public/                  # static assets
+├─ .env.local               # Next server env (PYTHON_BASE_URL only)
+├─ .env                     # Python env (OpenAI keys, etc.)
+└─ requirements.txt         # Python deps
+
+---
+
+## Quickstart
+
+1) Backend (FastAPI)
+
+# Create & activate venv
+python -m venv .venv && source .venv/bin/activate
+# Windows: .venv\Scripts\activate
+
+# Install deps
+pip install -r requirements.txt
+# If needed:
+pip install fastapi "uvicorn[standard]" faiss-cpu
+
+# Backend env (.env)
+# Add your keys, e.g.:
+# OPENAI_API_KEY=sk-...
+# MODEL=gpt-4o-mini
+# EMBEDDING_MODEL=text-embedding-3-large
+
+# Run FastAPI on port 8000
+python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+# Verify: http://127.0.0.1:8000/docs
+
+2) Frontend (Next.js)
+
+# Next server env (.env.local) — server-only var; do NOT prefix with NEXT_PUBLIC_
+PYTHON_BASE_URL=http://127.0.0.1:8000
+
+# Install and run
+npm install
+npm run dev
+# Visit http://localhost:3000
+# Health proxy test: http://localhost:3000/api/health  -> should return {"status":"ok"}
+
+
+API contract (backend)
+
+GET /health → {"status":"ok"}
+
+POST /api/ask
+Body: {"question": "What is zero trust?"}
+Resp: {"answer": "...", "citations":[...]}
+
+The frontend always calls /api/ask (Next). The Next route forwards to ${PYTHON_BASE_URL}/api/ask.
+
+---
+
+
 
 ## Configuration
 
