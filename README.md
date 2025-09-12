@@ -45,51 +45,55 @@ Flow:
 
 ## Quickstart
 
-1) Backend (FastAPI)
+### Backend (FastAPI)
 
-### Create & activate venv
-python -m venv .venv && source .venv/bin/activate
-Windows: .venv\Scripts\activate
+#### 1) Create & activate a virtualenv
+```bash
+python -m venv .venv
+source .venv/bin/activate    # macOS/Linux
+# .venv\Scripts\Activate.ps1 # Windows PowerShell
+```
 
-### Install deps
-#pip install -r requirements.txt
-#If needed:
-#pip install fastapi "uvicorn[standard]" faiss-cpu
+2) Install dependencies
 
-#Backend env (.env)
-#Add your keys, e.g.:
-#OPENAI_API_KEY=sk-...
-#MODEL=gpt-4o-mini
-#EMBEDDING_MODEL=text-embedding-3-large
+```bash
+pip install -r requirements.txt
+# If anything is missing locally, you can add:
+# pip install fastapi "uvicorn[standard]" faiss-cpu
+```
 
-#Run FastAPI on port 8000
+3) Backend env (.env)
+
+Create a file named .env in the repo root:
+```
+OPENAI_API_KEY=sk-...
+MODEL=gpt-4o-mini
+EMBEDDING_MODEL=text-embedding-3-large
+```
+
+4) Run FastAPI on port 8000
+```
 python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
-#Verify: http://127.0.0.1:8000/docs
+```
+Verify: http://127.0.0.1:8000/docs
 
-2) Frontend (Next.js)
+Frontend (Next.js)
+1) Next server env (.env.local)
 
-#Next server env (.env.local) — server-only var; do NOT prefix with NEXT_PUBLIC_
+Server-only variable (do not prefix with NEXT_PUBLIC_).
+```
 PYTHON_BASE_URL=http://127.0.0.1:8000
+```
 
-#Install and run
+2) Install and run
+```
 npm install
 npm run dev
-#Visit http://localhost:3000
-#Health proxy test: http://localhost:3000/api/health  -> should return {"status":"ok"}
+```
+Visit: http://localhost:3000
 
-
-API contract (backend)
-
-GET /health → {"status":"ok"}
-
-POST /api/ask
-Body: {"question": "What is zero trust?"}
-Resp: {"answer": "...", "citations":[...]}
-
-The frontend always calls /api/ask (Next). The Next route forwards to ${PYTHON_BASE_URL}/api/ask.
-
----
-
+Health proxy test: http://localhost:3000/api/health
+ → should return {"status":"ok"}
 
 
 ## Configuration
