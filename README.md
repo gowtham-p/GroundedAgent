@@ -42,6 +42,23 @@ Flow:
 ├─ .env # Python env (OpenAI keys, etc.)
 └─ requirements.txt # Python deps
 
+## Project Structure
+
+```text
+.
+├─ app/                     # Next.js (App Router)
+│  └─ api/
+│     └─ ask/
+│        └─ route.ts        # proxy -> FastAPI /api/ask
+├─ components/              # React UI
+├─ backend/                 # FastAPI app (main.py, rag_engine.py, etc.)
+├─ data/                    # PDFs (gitignored)
+├─ public/                  # static assets
+├─ .env.local               # Next server env (PYTHON_BASE_URL only)
+├─ .env                     # Python env (OpenAI keys, etc.)
+└─ requirements.txt         # Python deps
+```
+
 ## Quickstart
 
 ### Backend (FastAPI)
