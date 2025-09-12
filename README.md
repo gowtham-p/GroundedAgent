@@ -77,7 +77,8 @@ python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 ```
 Verify: http://127.0.0.1:8000/docs
 
-Frontend (Next.js)
+### Frontend (Next.js)
+
 1) Next server env (.env.local)
 
 Server-only variable (do not prefix with NEXT_PUBLIC_).
