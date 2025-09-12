@@ -42,12 +42,12 @@ const exampleQuestions = [
 
 // Simulated AI response generator - replace with real AI integration
 const generateResponse = async (question: string): Promise<string> => {
-  const base = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
-const res = await fetch(`${base}/api/ask`, {
+const res = await fetch("/api/ask", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ question }),
 });
+
 
   if (!res.ok) {
     throw new Error(`API error: ${res.status}`);
@@ -56,10 +56,6 @@ const res = await fetch(`${base}/api/ask`, {
   const data = await res.json();
   return data.answer ?? "No answer returned.";
 };
-
-if (!process.env.NEXT_PUBLIC_API_BASE) {
-  console.warn("NEXT_PUBLIC_API_BASE is not set; using default http://127.0.0.1:8000");
-}
 
 
 export function FAQAssistant() {
